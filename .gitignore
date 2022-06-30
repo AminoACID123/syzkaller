@@ -3,8 +3,9 @@
 *.cfg
 *.tmp
 *.img
+*.id_rsa
 workdir*
-
+**/chroot/
 bin/
 dashboard/app/config_prod.go
 

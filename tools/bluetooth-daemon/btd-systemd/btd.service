@@ -1,0 +1,13 @@
+[Unit]
+Description=Bluetooth Daemon
+
+[Service]
+Type=simple
+User=root
+EnvironmentFile=/bin/btd/btd-env
+ExecStart=/bin/btd/btd
+Restart=on-failure
+# Other Restart options: or always, on-abort, etc
+
+[Install]
+WantedBy=multi-user.target

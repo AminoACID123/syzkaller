@@ -33,6 +33,7 @@ const (
 	FeatureVhciInjection
 	FeatureWifiEmulation
 	Feature802154Emulation
+	FeatureBluetoothEmulation
 	numFeatures
 )
 

@@ -1,0 +1,18 @@
+qemu-system-x86_64 \
+-m 2048 \
+-smp 2 \
+-chardev socket,id=SOCKSYZ,server=on,wait=off,host=localhost,port=58536 \
+-mon chardev=SOCKSYZ,mode=control \
+-display none \
+-serial stdio \
+-no-reboot \
+-name VM-0 \
+-device virtio-rng-pci \
+-enable-kvm \
+-cpu host,migratable=off \
+-device e1000,netdev=net0 \
+-netdev user,id=net0,restrict=on,hostfwd=tcp:127.0.0.1:6857-:22 \
+-hda /home/xaz/Documents/syzkaller/stretch.img \
+-snapshot \
+-kernel /home/xaz/Documents/linux-5.14/arch/x86_64/boot/bzImage \
+-append "root=/dev/sda console=ttyS0"
