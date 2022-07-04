@@ -107,7 +107,7 @@ getsockopt$bt_BT_RCVMTU(fd sock_bt, level const[SOL_BLUETOOTH], opt const[BT_RCV
 
 bt_voice_settings = BT_VOICE_TRANSPARENT, BT_VOICE_CVSD_16BIT
 
-type hci_dev_t const[0, int16]
+type hci_dev_t int16[-1:4]
 
 sockaddr_hci {
 	hci_family	const[AF_BLUETOOTH, int16]

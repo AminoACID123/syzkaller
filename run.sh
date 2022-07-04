@@ -14,5 +14,5 @@ qemu-system-x86_64 \
 -netdev user,id=net0,restrict=on,hostfwd=tcp:127.0.0.1:6857-:22 \
 -hda /home/xaz/Documents/syzkaller/stretch.img \
 -snapshot \
--kernel /home/xaz/Documents/linux-5.14/arch/x86_64/boot/bzImage \
+-kernel /home/xaz/Documents/linux-5.4/arch/x86_64/boot/bzImage \
 -append "root=/dev/sda console=ttyS0"

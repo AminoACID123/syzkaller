@@ -60,7 +60,8 @@ else
 	REV=$(GITREV)+
 endif
 GITREVDATE=$(shell git log -n 1 --format="%cd" --date=format:%Y%m%d-%H%M%S)
-
+BUILD_DIR=$(shell pwd)/bin
+$(info $(BUILD_DIR))
 # Don't generate symbol table and DWARF debug info.
 # Reduces build time and binary sizes considerably.
 # That's only needed if you use gdb or nm.
@@ -95,7 +96,7 @@ ifeq ("$(TARGETOS)", "trusty")
 endif
 
 .PHONY: all clean host target \
-	manager runtest fuzzer executor \
+	manager controller runtest fuzzer executor \
 	ci hub \
 	execprog mutate prog2c trace2syz stress repro upgrade db \
 	usbgen symbolize cover kconf syz-build crush \
@@ -108,7 +109,7 @@ endif
 	presubmit_arch_executor presubmit_big presubmit_race presubmit_old
 
 all: host target
-host: manager runtest repro mutate prog2c db upgrade
+host: manager controller runtest repro mutate prog2c db upgrade
 target: fuzzer execprog stress executor
 
 executor: descriptions
@@ -150,6 +151,9 @@ descriptions:
 
 manager: descriptions
 	GOOS=$(HOSTOS) GOARCH=$(HOSTARCH) $(HOSTGO) build $(GOHOSTFLAGS) -o ./bin/syz-manager github.com/google/syzkaller/syz-manager
+
+controller:
+	(cd controller && BUILD_DIR=$(shell pwd)/bin make)
 
 runtest: descriptions
 	GOOS=$(HOSTOS) GOARCH=$(HOSTARCH) $(HOSTGO) build $(GOHOSTFLAGS) -o ./bin/syz-runtest github.com/google/syzkaller/tools/syz-runtest
