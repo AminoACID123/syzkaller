@@ -1,3 +1,10 @@
+#define _XOPEN_SOURCE 600
+#include <stdlib.h>
+#include <fcntl.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdio.h>
+
 #include "controller.h"
 
 #define VERSION "0.0.1"
@@ -10,6 +17,60 @@ bool skip_first_zero = false;
 
 void *buf;
 size_t buf_size;
+
+static void prepare_terminal()
+{
+	int pt = posix_openpt(O_RDWR);
+	if (pt == -1) {
+		perror("Could not open pseudo terminal.\n");
+		exit(1);
+	}
+	char *ptname = ptsname(pt);
+	if (!ptname) {
+		perror("Could not get pseudo terminal device name.\n");
+		close(pt);
+		exit(1);
+	}
+
+	if (unlockpt(pt) == -1) {
+		perror("Could not get pseudo terminal device name.\n");
+		close(pt);
+		exit(1);
+	}
+	char cmd[100];
+	int pts;
+	sscanf((strrchr(ptname, '/') + 1), "%d", &pts);
+	sprintf(cmd, "xterm -fa monaco -fs 14 -bg black -S%d/%d &", pts, pt);
+	system(cmd);
+
+	int xterm_fd = open(ptname, O_RDWR);
+
+	char c;
+	do {
+		read(xterm_fd, &c, 1);
+	} while (c != '\n');
+
+	if (dup2(pt, 1) < 0) {
+		perror("Could not redirect standard output.\n");
+		close(pt);
+		exit(1);
+	}
+	if (dup2(pt, 2) < 0) {
+		perror("Could not redirect standard error output.\n");
+		close(pt);
+		exit(1);
+	}
+/*
+	int i = 0;
+	while (1) {
+		printf("%d\n",i);
+		sleep(1);
+		i++;
+	}
+	close(pt);
+	return EXIT_SUCCESS;
+	*/
+}
 
 static int open_unix(const char *path)
 {
@@ -185,6 +246,7 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
+
 	buf = malloc0(4096);
 
 	mainloop_init();
@@ -199,6 +261,8 @@ int main(int argc, char *argv[])
 
 	if (server_fd < 0)
 		return EXIT_FAILURE;
+
+	prepare_terminal();
 
 	mainloop_add_fd(server_fd, EPOLLIN, server_callback, NULL, NULL);
 

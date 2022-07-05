@@ -104,6 +104,7 @@ type instance struct {
 	rpipe       io.ReadCloser
 	wpipe       io.WriteCloser
 	qemu        *exec.Cmd
+	controller  *exec.Cmd
 	merger      *vmimpl.OutputMerger
 	files       map[string]string
 	diagnose    chan bool
@@ -123,7 +124,7 @@ type archConfig struct {
 var archConfigs = map[string]*archConfig{
 	"linux/amd64": {
 		Qemu:     "qemu-system-x86_64",
-		QemuArgs: "-enable-kvm -cpu host,migratable=off",
+		QemuArgs: "-enable-kvm -cpu host,migratable=off -serial unix:/tmp/bt-server-bredr",
 		// e1000e fails on recent Debian distros with:
 		// Initialization of device e1000e failed: failed to find romfile "efi-e1000e.rom
 		// But other arches don't use e1000e, e.g. arm64 uses virtio by default.
@@ -385,6 +386,10 @@ func (inst *instance) Close() {
 		inst.qemu.Process.Kill()
 		inst.qemu.Wait()
 	}
+	if inst.controller != nil {
+		inst.controller.Process.Kill()
+		inst.controller.Wait()
+	}
 	if inst.merger != nil {
 		inst.merger.Wait()
 	}
@@ -486,9 +491,21 @@ func (inst *instance) boot() error {
 		log.Logf(0, "running command: %v %#v", inst.cfg.Qemu, args)
 	}
 	inst.args = args
+
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Fatalf("failed to get wd: %v", err)
+	}
+	fmt.Print(filepath.Join(wd, "bin", "controller"))
+	controller := osutil.Command(filepath.Join(wd, "bin", "controller"), "-d")
+	inst.controller = controller
 	qemu := osutil.Command(inst.cfg.Qemu, args...)
 	qemu.Stdout = inst.wpipe
 	qemu.Stderr = inst.wpipe
+
+	if err := controller.Start(); err != nil {
+		return fmt.Errorf("failed to start controller")
+	}
 	if err := qemu.Start(); err != nil {
 		return fmt.Errorf("failed to start %v %+v: %v", inst.cfg.Qemu, args, err)
 	}
