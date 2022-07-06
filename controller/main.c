@@ -149,7 +149,7 @@ static void server_callback(int fd, uint32_t events, void *user_data)
 		return;
 	}
 
-	printf("Setting up controller\n");
+	fprintf(stderr, "Setting up controller\n");
 
 	if (hci_index != HCI_INDEX_NONE)
 		client_active = setup_proxy(host_fd);
@@ -200,6 +200,16 @@ int main(int argc, char *argv[])
 	uint8_t type = HCI_PRIMARY;
 	const char *str;
 	unix_path = "/tmp/bt-server-bredr";
+
+
+	FILE* out = fopen("log.txt", "w");
+	int fd = fileno(out);
+	if(fd<0){
+		perror("open log.txt failed");
+		exit(1);
+	}
+    dup2(fd, STDOUT_FILENO); // Check `man stdin` for more info
+    dup2(fd, STDERR_FILENO);
 
 	for (;;) {
 		int opt;
@@ -254,7 +264,7 @@ int main(int argc, char *argv[])
 	int server_fd;
 
 	if (unix_path) {
-		printf("Listening on %s\n", unix_path);
+		fprintf(stderr, "Listening on %s\n", unix_path);
 
 		server_fd = open_unix(unix_path);
 	}
@@ -262,7 +272,9 @@ int main(int argc, char *argv[])
 	if (server_fd < 0)
 		return EXIT_FAILURE;
 
-	prepare_terminal();
+	//prepare_terminal();
+
+
 
 	mainloop_add_fd(server_fd, EPOLLIN, server_callback, NULL, NULL);
 

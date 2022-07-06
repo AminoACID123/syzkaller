@@ -92,7 +92,7 @@ bool setup_virt(int host_fd);
 
 static inline void hexdump_print(const char *str, void *user_data)
 {
-	printf("%s%s\n", (char *) user_data,str);
+	fprintf(stderr, "%s%s\n", (char *) user_data,str);
 }
 
 

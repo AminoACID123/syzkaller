@@ -2,6 +2,7 @@ qemu-system-x86_64 \
 -m 2048 \
 -smp 2 \
 -serial stdio \
+-serial unix:/tmp/bt-server-bredr \
 -no-reboot \
 -name VM-0 \
 -device virtio-rng-pci \
@@ -13,4 +14,3 @@ qemu-system-x86_64 \
 -snapshot \
 -kernel /home/xaz/Documents/linux-5.4/arch/x86_64/boot/bzImage \
 -append "root=/dev/sda console=ttyS0" \
--serial unix:/tmp/bt-server-bredr

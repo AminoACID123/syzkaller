@@ -123,7 +123,7 @@ static void reply(struct controller *ctrl, void *buf, uint16_t len)
 	}
 	}
 
-	printf("Receive command %x, sending dummy reply\n", hdr->opcode);
+	fprintf(stderr,"Receive command %x, sending dummy reply\n", hdr->opcode);
 	char dummy[0xf9] = { 0 };
 	debug_enabled = false;
 	send_cmd_complete_event(ctrl, hdr->opcode, dummy, sizeof(dummy));
@@ -167,7 +167,7 @@ static void host_read_callback(int fd, uint32_t events, void *user_data)
 	if (ctrl->host_skip_first_zero && len > 0) {
 		ctrl->host_skip_first_zero = false;
 		if (ctrl->host_buf[ctrl->host_len] == '\0') {
-			printf("Skipping initial zero byte\n");
+			fprintf(stderr, "Skipping initial zero byte\n");
 			len--;
 			memmove(ctrl->host_buf + ctrl->host_len,
 				ctrl->host_buf + ctrl->host_len + 1, len);
@@ -247,7 +247,7 @@ static void host_read_destroy(void *user_data)
 {
 	struct controller *ctrl = user_data;
 
-	printf("Closing host descriptor\n");
+	fprintf(stderr,"Closing host descriptor\n");
 
 	if (ctrl->host_shutdown)
 		shutdown(ctrl->host_fd, SHUT_RDWR);
@@ -266,7 +266,7 @@ bool setup_virt(int host_fd)
 {
 	struct controller *ctrl;
 
-	printf("Using Virtual Controller\n");
+	fprintf(stderr, "Using Virtual Controller\n");
 
 	ctrl = new0(struct controller, 1);
 	if (!ctrl) {
@@ -275,7 +275,7 @@ bool setup_virt(int host_fd)
 	}
 
 	if (emulate_ecc)
-		printf("Enabling ECC emulation\n");
+		fprintf(stderr, "Enabling ECC emulation\n");
 
 	ctrl->host_fd = host_fd;
 	ctrl->host_shutdown = true;

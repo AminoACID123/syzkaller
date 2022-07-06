@@ -8,7 +8,7 @@ set -eux
 
 # Create a minimal Debian distribution in a directory.
 DIR=chroot
-PREINSTALL_PKGS=openssh-server,curl,tar,gcc,libc6-dev,time,strace,sudo,less,psmisc,selinux-utils,policycoreutils,checkpolicy,selinux-policy-default,firmware-atheros,debian-ports-archive-keyring
+PREINSTALL_PKGS=openssh-server,curl,tar,gcc,libc6-dev,time,strace,sudo,less,psmisc,selinux-utils,policycoreutils,checkpolicy,selinux-policy-default,firmware-atheros,debian-ports-archive-keyring,bluez
 
 # If ADD_PACKAGE is not defined as an external environment variable, use our default packages
 if [ -z ${ADD_PACKAGE+x} ]; then
@@ -181,13 +181,13 @@ fi
 
 cd bluetooth-daemon/btd && make && cd ../../
 sudo mkdir -p $DIR/bin/btd
-cp bluetooth-daemon/btd/btd $DIR/bin/btd
+sudo cp bluetooth-daemon/btd/btd $DIR/bin/btd
 
-cp bluetooth-daemon/btd-systemd/btd-env $DIR/bin/btd
-cp bluetooth-daemon/btd-systemd/btd.service $DIR/etc/systemd/system
+sudo cp bluetooth-daemon/btd-systemd/btd-env $DIR/bin/btd
+sudo cp bluetooth-daemon/btd-systemd/btd.service $DIR/etc/systemd/system
 
-chmod 644 $DIR/etc/systemd/system/btd.service
-ln -s $DIR/etc/systemd/system/btd.service $DIR/etc/systemd/system/multi-user.target.wants/btd.service
+sudo chmod 644 $DIR/etc/systemd/system/btd.service
+sudo ln -s $DIR/etc/systemd/system/btd.service $DIR/etc/systemd/system/multi-user.target.wants/btd.service
 
 # Add udev rules for custom drivers.
 # Create a /dev/vim2m symlink for the device managed by the vim2m driver
